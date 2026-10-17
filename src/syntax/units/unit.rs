@@ -5,12 +5,12 @@ use crate::syntax::Tool;
 
 #[derive(Debug)]
 pub(crate) struct Unit {
-    id: Id,
-    task: Option<String>,
-    exec: Option<Tool>,
-    when: Option<Expression>,
-    tools: Option<Vec<Id>>,
+    pub(super) id: Id,
+    pub(super) task: Option<String>,
+    pub(super) exec: Option<Tool>,
+    pub(super) when: Option<Expression>,
+    pub(super) tools: Option<Vec<Id>>,
 
-    state: UnitState,
-    ok: Option<bool>,
+    pub(super) state: Option<UnitState>,
+    pub(super) ok: Option<bool>,
 }

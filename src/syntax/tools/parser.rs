@@ -23,7 +23,7 @@ fn pre_parser(table: Table) -> Vec<Value> {
         .collect()
 }
 
-fn parse_tool(mut tool: Array) -> Result<Tool, String> {
+pub(crate) fn parse_tool(mut tool: Array) -> Result<Tool, String> {
     if tool.is_empty() {
         return Err("a tool cannot be empty".into());
     }

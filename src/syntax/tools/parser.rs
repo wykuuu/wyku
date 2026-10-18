@@ -49,7 +49,7 @@ mod test {
         let tools = Tool::parser(toml).unwrap();
 
         assert_eq!(tools.len(), 1);
-        assert_eq!(tools[0].name, Some(Id::new("my_tool").unwrap()));
+        assert_eq!(tools[0].name, Some(Id::new_tool("my_tool").unwrap()));
         assert_eq!(
             tools[0].exec,
             vec![
@@ -66,7 +66,7 @@ mod test {
         let tools = Tool::parser(toml).unwrap();
 
         assert_eq!(tools.len(), 1);
-        assert_eq!(tools[0].name, Some(Id::new("safe_command").unwrap()));
+        assert_eq!(tools[0].name, Some(Id::new_tool("safe_command").unwrap()));
         assert_eq!(
             tools[0].exec,
             vec![
@@ -98,7 +98,7 @@ mod test {
 
         let ping = tools
             .iter()
-            .find(|t| t.name == Some(Id::new("ping").unwrap()))
+            .find(|t| t.name == Some(Id::new_tool("ping").unwrap()))
             .unwrap();
 
         assert_eq!(
@@ -111,7 +111,7 @@ mod test {
 
         let who = tools
             .iter()
-            .find(|t| t.name == Some(Id::new("who").unwrap()))
+            .find(|t| t.name == Some(Id::new_tool("who").unwrap()))
             .unwrap();
 
         assert_eq!(who.exec, vec![Arg::Input("whoami".into())]);

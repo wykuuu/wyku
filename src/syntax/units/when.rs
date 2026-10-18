@@ -205,7 +205,10 @@ impl Subject {
         if subject.contains(":") {
             if let Some(split) = subject.split_once(":") {
                 let (unit, state) = split;
-                return Ok(Subject::Unit(Id::new(unit)?, UnitState::parser(state)?));
+                return Ok(Subject::Unit(
+                    Id::new_unit(unit)?,
+                    UnitState::parser(state)?,
+                ));
             }
         }
 
@@ -303,10 +306,7 @@ mod test {
                     and(sub("d:watch"), or(sub("curl"), sub(":bash"))),
                 ),
                 or(
-                    not(not(and(
-                        or(sub("e:start"), sub(":bash")),
-                        sub("f:finish"),
-                    ))),
+                    not(not(and(or(sub("e:start"), sub(":bash")), sub("f:finish")))),
                     and(
                         not(sub("a:start")),
                         or(sub("b:finish"), not(and(sub("c:fail"), sub("d:watch")))),

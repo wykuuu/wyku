@@ -1,44 +1,40 @@
-use regex::Regex;
+#[derive(Debug, PartialEq)]
+pub(crate) struct Id(String);
 
-#[derive(Debug)]
-pub(crate) struct Id {
-    id: String,
-    exception: Option<String>, // Stored Only For Debugging
+fn tool_algoritm(tool: &str) -> bool {
+    let w = |p: &str| !p.is_empty() && p.bytes().all(|c| matches!(c, b'a'..=b'z' | b'_' | b'-'));
+    tool.strip_prefix(':').map_or_else(
+        || {
+            tool.split_once("::")
+                .map_or_else(|| w(tool), |(a, b)| w(a) && w(b))
+        },
+        w,
+    )
 }
 
-impl PartialEq for Id {
-    fn eq(&self, other: &Self) -> bool {
-        self.id == other.id
-    }
+fn unit_algoritm(unit: &str) -> bool {
+    unit.split('.')
+        .all(|p| !p.is_empty() && p.bytes().all(|c| matches!(c, b'a'..=b'z' | b'_' | b'-')))
 }
 
 impl Id {
-    pub(crate) fn new(id: &str) -> Result<Id, String> {
-        Id::new_with_exception(id, None::<String>)
+    pub(crate) fn new_unit(id: &str) -> Result<Id, String> {
+        Id::new_with_exception(id, unit_algoritm)
     }
 
     pub(crate) fn new_tool(id: &str) -> Result<Id, String> {
-        Id::new_with_exception(id, Some(":".to_string()))
+        Id::new_with_exception(id, tool_algoritm)
     }
 
-    pub(crate) fn new_with_exception(id: &str, exception: Option<String>) -> Result<Id, String> {
-        let pattern_exception = regex::escape(exception.as_deref().unwrap_or(""));
-        let pattern = format!(r"^[a-z_\-{pattern_exception}]+$");
-
-        let Ok(id_regex) = Regex::new(&pattern) else {
-            return Err(format!(
-                "Invalid Regex '{pattern}', Supplied Exception '{pattern_exception}'"
-            ));
-        };
-
-        if !id_regex.is_match(&id) {
-            return Err(format!("Invalid ID '{id}', Must Match '{pattern}'"));
+    pub(crate) fn new_with_exception(id: &str, algoritm: fn(&str) -> bool) -> Result<Id, String> {
+        if id.is_empty() {
+            return Err(format!("void Id"));
+        }
+        if !algoritm(id) {
+            return Err(format!("invalid id '{id}'"));
         }
 
-        Ok(Id {
-            id: id.into(),
-            exception,
-        })
+        Ok(Id(id.into()))
     }
 }
 
@@ -51,7 +47,7 @@ mod test {
         let ids = vec!["Hello World", "Tooling", "Ñ", "Agent"];
 
         for i in ids {
-            let id = Id::new(i);
+            let id = Id::new_unit(i);
             assert!(id.is_err())
         }
     }
@@ -61,7 +57,7 @@ mod test {
         let ids = vec!["main", "check", "worker", "agent"];
 
         for i in ids {
-            let id = Id::new(i);
+            let id = Id::new_unit(i);
             assert!(id.is_ok())
         }
     }

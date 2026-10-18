@@ -86,10 +86,13 @@ mod test {
         assert_eq!(
             main.exec,
             Some(
-                parse_tool(vec![
-                    Value::String(":bash".into()),
-                    Value::String("echo hi".into()),
-                ])
+                parse_tool(
+                    None,
+                    vec![
+                        Value::String(":bash".into()),
+                        Value::String("echo hi".into()),
+                    ]
+                )
                 .unwrap()
             )
         );

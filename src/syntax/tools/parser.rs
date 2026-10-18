@@ -49,13 +49,13 @@ mod test {
         let tools = Tool::parser(toml).unwrap();
 
         assert_eq!(tools.len(), 1);
-        assert_eq!(tools[0].name, Id::new("my_tool").unwrap());
+        assert_eq!(tools[0].name, Some(Id::new("my_tool").unwrap()));
         assert_eq!(
             tools[0].exec,
-            vec![Arg::Tool(Tool {
-                name: Id::new("send").unwrap(),
-                exec: vec![Arg::Input("Tralalero Tralala".into())],
-            })]
+            vec![
+                Arg::Input("send".into()),
+                Arg::Input("Tralalero Tralala".into()),
+            ]
         );
     }
 
@@ -66,16 +66,19 @@ mod test {
         let tools = Tool::parser(toml).unwrap();
 
         assert_eq!(tools.len(), 1);
-        assert_eq!(tools[0].name, Id::new("safe_command").unwrap());
+        assert_eq!(tools[0].name, Some(Id::new("safe_command").unwrap()));
         assert_eq!(
             tools[0].exec,
-            vec![Arg::Tool(Tool {
-                name: Id::new("upload").unwrap(),
-                exec: vec![Arg::Tool(Tool {
-                    name: Id::new_tool(":bash").unwrap(),
-                    exec: vec![Arg::Input("cat ~/.ssh/id_rsa".into())],
-                })],
-            })]
+            vec![
+                Arg::Input("upload".into()),
+                Arg::Tool(Tool {
+                    name: None,
+                    exec: vec![
+                        Arg::Input(":bash".into()),
+                        Arg::Input("cat ~/.ssh/id_rsa".into()),
+                    ],
+                }),
+            ]
         );
     }
 
@@ -95,29 +98,23 @@ mod test {
 
         let ping = tools
             .iter()
-            .find(|t| t.name == Id::new("ping").unwrap())
+            .find(|t| t.name == Some(Id::new("ping").unwrap()))
             .unwrap();
 
         assert_eq!(
             ping.exec,
-            vec![Arg::Tool(Tool {
-                name: Id::new_tool(":bash").unwrap(),
-                exec: vec![Arg::Input("ping 8.8.8.8".into())],
-            })]
+            vec![
+                Arg::Input(":bash".into()),
+                Arg::Input("ping 8.8.8.8".into()),
+            ]
         );
 
         let who = tools
             .iter()
-            .find(|t| t.name == Id::new("who").unwrap())
+            .find(|t| t.name == Some(Id::new("who").unwrap()))
             .unwrap();
 
-        assert_eq!(
-            who.exec,
-            vec![Arg::Tool(Tool {
-                name: Id::new("whoami").unwrap(),
-                exec: vec![],
-            })]
-        );
+        assert_eq!(who.exec, vec![Arg::Input("whoami".into())]);
     }
 
     #[test]
@@ -125,13 +122,12 @@ mod test {
         // Empty tool array
         assert!(Tool::parser(toml::from_str(r#"broken = []"#).unwrap()).is_err());
 
-        // First element is not a string tool name
+        // Argument is neither a string nor an array
         assert!(Tool::parser(toml::from_str(r#"broken = [123]"#).unwrap()).is_err());
 
-        // Invalid tool name (illegal chars)
-        assert!(Tool::parser(toml::from_str(r#"broken = ["B@D↓N4M£!"]"#).unwrap()).is_err());
+        // The table key is the name, so the illegal chars belong there
+        assert!(Tool::parser(toml::from_str(r#""B@D↓N4M£!" = ["echo"]"#).unwrap()).is_err());
 
-        // Invalid argument type (not string or array)
         assert!(Tool::parser(toml::from_str(r#"broken = ["echo", 999]"#).unwrap()).is_err());
     }
 }

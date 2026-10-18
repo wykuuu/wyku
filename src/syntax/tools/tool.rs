@@ -8,6 +8,6 @@ pub(super) enum Arg {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Tool {
-    pub(super) name: Id,
+    pub(super) name: Option<Id>,
     pub(super) exec: Vec<Arg>,
 }

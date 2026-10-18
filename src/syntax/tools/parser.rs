@@ -6,38 +6,28 @@ use crate::syntax::{Id, Parsable};
 
 impl Parsable<Vec<Tool>> for Tool {
     fn parser(table: Table) -> Result<Vec<Tool>, String> {
-        pre_parser(table)
+        table
             .into_iter()
-            .map(|i| match i {
-                Value::Array(tool) => parse_tool(tool),
+            .map(|(i, t)| match t {
+                Value::Array(tool) => parse_tool(Some(i), tool),
                 _ => Err("a tool must be an array: [base, [first arg], ...]".into()),
             })
             .collect()
     }
 }
 
-fn pre_parser(table: Table) -> Vec<Value> {
-    table
-        .into_iter()
-        .map(|(name, value)| Value::Array(vec![Value::String(name), value]))
-        .collect()
-}
-
-pub(crate) fn parse_tool(mut tool: Array) -> Result<Tool, String> {
+pub(crate) fn parse_tool(name: Option<String>, tool: Array) -> Result<Tool, String> {
     if tool.is_empty() {
         return Err("a tool cannot be empty".into());
     }
 
-    let Value::String(name) = tool.remove(0) else {
-        return Err(format!("expected tool name string"));
-    };
-    let name = Id::new_tool(&name)?;
+    let name = name.as_deref().map(Id::new_tool).transpose()?;
 
     let mut exec = Vec::<Arg>::new();
     for i in tool {
         match i {
             Value::String(string) => exec.push(Arg::Input(string)),
-            Value::Array(array) => exec.push(Arg::Tool(parse_tool(array)?)),
+            Value::Array(array) => exec.push(Arg::Tool(parse_tool(None, array)?)),
             _ => {
                 return Err(format!(
                     "expected a string or an array of strings, got '{i}'"

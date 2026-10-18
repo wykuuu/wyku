@@ -34,7 +34,7 @@ fn parse_unit(id: String, table: Table) -> Result<Unit, String> {
     let raw = UnitTypes::deserialize(Value::Table(table)).map_err(|err| err.to_string())?;
 
     let exec = match raw.exec {
-        Some(array) if !array.is_empty() => Some(parse_tool(array)?),
+        Some(array) if !array.is_empty() => Some(parse_tool(None, array)?),
         _ => None,
     };
 

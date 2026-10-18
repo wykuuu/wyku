@@ -58,3 +58,50 @@ fn parse_unit(id: String, table: Table) -> Result<Unit, String> {
         ok: None,
     })
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn parser() {
+        let parsed = Unit::parser(
+            toml::from_str(
+                r#"
+                [main]
+                task = "@($user)"
+                exec = [":bash", "echo hi"]
+                when = "main:finish"
+                tools = [":bash", "read"]
+                "#,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+
+        assert_eq!(parsed.len(), 1);
+        let main = &parsed[0];
+        assert_eq!(main.id, Id::new("main").unwrap());
+        assert_eq!(main.task.as_deref(), Some("@($user)"));
+        assert_eq!(
+            main.exec,
+            Some(
+                parse_tool(vec![
+                    Value::String(":bash".into()),
+                    Value::String("echo hi".into()),
+                ])
+                .unwrap()
+            )
+        );
+        assert_eq!(main.when, Some(Expression::parser("main:finish").unwrap()));
+        assert_eq!(
+            main.tools,
+            Some(vec![
+                Id::new_tool(":bash").unwrap(),
+                Id::new_tool("read").unwrap(),
+            ])
+        );
+        assert!(main.state.is_none());
+        assert!(main.ok.is_none());
+    }
+}

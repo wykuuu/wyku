@@ -22,23 +22,6 @@ pub(crate) enum Expression {
     OR((Box<Expression>, Option<Box<Expression>>)),
 }
 
-fn push_split<'a>(rest: &mut Vec<&'a str>, word: &'a str) {
-    let mut start = 0;
-    for (i, c) in word.char_indices() {
-        if c == '(' || c == ')' {
-            if start < i {
-                rest.push(&word[start..i]);
-            }
-            let end = i + c.len_utf8();
-            rest.push(&word[i..end]);
-            start = end;
-        }
-    }
-    if start < word.len() {
-        rest.push(&word[start..]);
-    }
-}
-
 impl Expression {
     pub(crate) fn parser(when: &str) -> Result<Expression, String> {
         let mut rest = Vec::new();
@@ -69,6 +52,23 @@ fn none_parse(
     let subject = subject_parse(expression, rest)?;
     *expression = Some(subject);
     operator_parse(expression, rest)
+}
+
+fn push_split<'a>(rest: &mut Vec<&'a str>, word: &'a str) {
+    let mut start = 0;
+    for (i, c) in word.char_indices() {
+        if c == '(' || c == ')' {
+            if start < i {
+                rest.push(&word[start..i]);
+            }
+            let end = i + c.len_utf8();
+            rest.push(&word[i..end]);
+            start = end;
+        }
+    }
+    if start < word.len() {
+        rest.push(&word[start..]);
+    }
 }
 
 fn not_parse(

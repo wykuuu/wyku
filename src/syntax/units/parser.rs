@@ -69,7 +69,7 @@ mod test {
             toml::from_str(
                 r#"
                 [main]
-                task = "@($user)"
+                task = "@(:user)"
                 exec = [":bash", "echo hi"]
                 when = "main:finish"
                 tools = [":bash", "read"]
@@ -82,7 +82,7 @@ mod test {
         assert_eq!(parsed.len(), 1);
         let main = &parsed[0];
         assert_eq!(main.id, Id::new_unit("main").unwrap());
-        assert_eq!(main.task.as_deref(), Some("@($user)"));
+        assert_eq!(main.task.as_deref(), Some("@(:user)"));
         assert_eq!(
             main.exec,
             Some(

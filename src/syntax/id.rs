@@ -1,5 +1,5 @@
 #[derive(Debug, PartialEq)]
-pub(crate) struct Id(String);
+pub(crate) struct Id(pub(super) String);
 
 fn tool_algoritm(tool: &str) -> bool {
     let w = |p: &str| !p.is_empty() && p.bytes().all(|c| matches!(c, b'a'..=b'z' | b'_' | b'-'));

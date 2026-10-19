@@ -30,7 +30,13 @@ fn parse_unit(id: String, table: Table) -> Result<Unit, String> {
         return Err("unit id cannot be `tools`".into());
     }
 
-    let id = Id::new_unit(&id)?;
+    let id = Id::new_unit(&id)? // Reject a bad unit Id
+        .0
+        .split('.') // Split and re-create the Ids
+        .map(Id::new_unit)
+        .rev() // Reverse so the first element is the name
+        .collect::<Result<Vec<_>, _>>()?;
+
     let raw = UnitTypes::deserialize(Value::Table(table)).map_err(|e| e.to_string())?;
 
     let exec = match raw.exec {
@@ -81,7 +87,7 @@ mod test {
 
         assert_eq!(parsed.len(), 1);
         let main = &parsed[0];
-        assert_eq!(main.id, Id::new_unit("main").unwrap());
+        assert_eq!(main.id, vec![Id::new_unit("main").unwrap()]);
         assert_eq!(main.task.as_deref(), Some("@(:user)"));
         assert_eq!(
             main.exec,

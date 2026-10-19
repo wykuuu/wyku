@@ -44,7 +44,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn invalid_ids() {
+    fn invalid_units_ids() {
         let ids = vec!["Hello World", "Tooling", "Ñ", "Agent", "tools"];
 
         for i in ids {
@@ -54,7 +54,7 @@ mod test {
     }
 
     #[test]
-    fn valid_ids() {
+    fn valid_units_ids() {
         let ids = vec!["main", "check", "worker", "agent"];
 
         for i in ids {

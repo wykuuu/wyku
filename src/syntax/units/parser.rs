@@ -35,6 +35,8 @@ fn parse_unit(id: String, table: Table) -> Result<Unit, String> {
 
     let raw = UnitTypes::deserialize(Value::Table(table)).map_err(|e| e.to_string())?;
 
+    let task = raw.task.unwrap_or("@(:prompt)".into());
+
     let exec = match raw.exec {
         Some(array) if !array.is_empty() => Some(parse_tool(None, array)?),
         _ => None,
@@ -52,7 +54,7 @@ fn parse_unit(id: String, table: Table) -> Result<Unit, String> {
 
     Ok(Unit {
         id,
-        task: raw.task,
+        task,
         exec,
         when,
         tools,
@@ -84,7 +86,7 @@ mod test {
         assert_eq!(parsed.len(), 1);
         let main = &parsed[0];
         assert_eq!(main.id, vec![Id::new_unit("main").unwrap()]);
-        assert_eq!(main.task.as_deref(), Some("@(:user)"));
+        assert_eq!(main.task, "@(:user)");
         assert_eq!(
             main.exec,
             Some(

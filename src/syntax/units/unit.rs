@@ -6,7 +6,7 @@ use crate::syntax::Tool;
 #[derive(Debug)]
 pub(crate) struct Unit {
     pub(super) id: Vec<Id>,
-    pub(super) task: Option<String>,
+    pub(super) task: String,
     pub(super) exec: Option<Tool>,
     pub(super) when: Option<Expression>,
     pub(super) tools: Option<Vec<Id>>,

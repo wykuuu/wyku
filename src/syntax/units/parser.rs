@@ -26,10 +26,6 @@ impl Parsable<Vec<Unit>> for Unit {
 }
 
 fn parse_unit(id: String, table: Table) -> Result<Unit, String> {
-    if id == "tools" {
-        return Err("unit id cannot be `tools`".into());
-    }
-
     let id = Id::new_unit(&id)? // Reject a bad unit Id
         .0
         .split('.') // Split and re-create the Ids

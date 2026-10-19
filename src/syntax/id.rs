@@ -13,8 +13,9 @@ fn tool_algoritm(tool: &str) -> bool {
 }
 
 fn unit_algoritm(unit: &str) -> bool {
-    unit.split('.')
-        .all(|p| !p.is_empty() && p.bytes().all(|c| matches!(c, b'a'..=b'z' | b'_' | b'-')))
+    unit.split('.').all(|p| {
+        !p.is_empty() && p != "tools" && p.bytes().all(|c| matches!(c, b'a'..=b'z' | b'_' | b'-'))
+    })
 }
 
 impl Id {
@@ -44,7 +45,7 @@ mod test {
 
     #[test]
     fn invalid_ids() {
-        let ids = vec!["Hello World", "Tooling", "Ñ", "Agent"];
+        let ids = vec!["Hello World", "Tooling", "Ñ", "Agent", "tools"];
 
         for i in ids {
             let id = Id::new_unit(i);

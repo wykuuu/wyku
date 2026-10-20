@@ -2,9 +2,13 @@
 pub(crate) struct Id(pub(super) String);
 
 fn unit_algoritm(unit: &str) -> bool {
-    unit.split('.').all(|p| {
-        !p.is_empty() && p != "tools" && p.bytes().all(|c| matches!(c, b'a'..=b'z' | b'_' | b'-'))
-    })
+    let parts: Vec<&str> = unit.split('.').collect();
+    parts.len() <= 2
+        && parts.iter().all(|p| {
+            !p.is_empty()
+                && *p != "tools"
+                && p.bytes().all(|c| matches!(c, b'a'..=b'z' | b'_' | b'-'))
+        })
 }
 
 fn when_algoritm(unit: &str) -> bool {

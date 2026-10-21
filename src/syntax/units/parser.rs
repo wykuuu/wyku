@@ -16,21 +16,43 @@ struct UnitTypes {
 
 impl Parsable<Vec<Unit>> for Unit {
     fn parser(toml: Table) -> Result<Vec<Unit>, String> {
-        toml.into_iter()
-            .map(|(key, value)| match value {
-                Value::Table(body) => parse_unit(key, body).map_err(|e| e.to_string()),
-                _ => Err(format!("unit `{key}` must be a table")),
-            })
-            .collect()
+        let mut units = Vec::new();
+
+        for (key, value) in toml {
+            let Value::Table(body) = value else {
+                return Err(format!("'{key}' must be in '[tools]' instead"));
+            };
+
+            if !body.values().any(Value::is_table) {
+                units.push(parse_unit(vec![key], body)?);
+                continue;
+            }
+
+            if body.values().any(|v| !v.is_table()) {
+                return Err(format!("unit '{key}' cannot have tables"));
+            }
+
+            for (child, value) in body {
+                let Value::Table(table) = value else {
+                    unreachable!()
+                };
+                if table.values().any(Value::is_table) {
+                    return Err(format!("unit '{key}.{child}' cannot have tables"));
+                }
+
+                units.push(parse_unit(vec![key.clone(), child], table)?);
+            }
+        }
+
+        Ok(units)
     }
 }
 
-fn parse_unit(id: String, table: Table) -> Result<Unit, String> {
-    let id = Id::new_unit(&id)? // Reject a bad unit Id
-        .0
-        .split('.') // Split and re-create the Ids
-        .map(Id::new_unit)
-        .rev() // Reverse so the first element is the name
+fn parse_unit(id: Vec<String>, table: Table) -> Result<Unit, String> {
+    let id = id
+        .into_iter()
+        .map(|id| Id::new_unit(&id))
+        .rev() // the Id is the first element
         .collect::<Result<Vec<_>, _>>()?;
 
     let raw = UnitTypes::deserialize(Value::Table(table)).map_err(|e| e.to_string())?;

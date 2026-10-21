@@ -206,7 +206,7 @@ impl Subject {
             if let Some(split) = subject.split_once(":") {
                 let (unit, state) = split;
                 return Ok(Subject::Unit(
-                    Id::new_when_unit(unit)?,
+                    Id::new_unit(unit)?,
                     UnitState::parser(state)?,
                 ));
             }

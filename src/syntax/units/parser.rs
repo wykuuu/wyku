@@ -90,11 +90,11 @@ mod test {
     use super::*;
 
     #[test]
-    fn parser() {
+    fn nice_unit() {
         let parsed = Unit::parser(
             toml::from_str(
                 r#"
-                [main]
+                [never.main]
                 task = "@(:user)"
                 exec = [":bash", "echo hi"]
                 when = "main:finish"
@@ -107,7 +107,13 @@ mod test {
 
         assert_eq!(parsed.len(), 1);
         let main = &parsed[0];
-        assert_eq!(main.id, vec![Id::new_unit("main").unwrap()]);
+        assert_eq!(
+            main.id,
+            vec![
+                Id::new_unit("main").unwrap(),
+                Id::new_unit("never").unwrap()
+            ]
+        );
         assert_eq!(main.task, "@(:user)");
         assert_eq!(
             main.exec,

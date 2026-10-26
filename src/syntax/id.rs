@@ -18,14 +18,14 @@ fn tool_algoritm(tool: &str) -> bool {
 
 impl Id {
     pub(crate) fn new_unit(id: &str) -> Result<Id, String> {
-        Id::new_with_exception(id, unit_algoritm)
+        Id::new(id, unit_algoritm)
     }
 
     pub(crate) fn new_tool(id: &str) -> Result<Id, String> {
-        Id::new_with_exception(id, tool_algoritm)
+        Id::new(id, tool_algoritm)
     }
 
-    pub(crate) fn new_with_exception(id: &str, algoritm: fn(&str) -> bool) -> Result<Id, String> {
+    fn new(id: &str, algoritm: fn(&str) -> bool) -> Result<Id, String> {
         if id.is_empty() {
             return Err(format!("void Id"));
         }

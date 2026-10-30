@@ -40,6 +40,8 @@ fn try_create(path: &PathBuf) -> io::Result<PathBuf> {
 mod test {
     use super::*;
 
+    const PREFIX: &str = "wykuuuuuuuuuuuuuuuuuuuuuuuuuuuu";
+
     fn app_dir(app: &str) -> PathBuf {
         dirs::data_dir()
             .unwrap()
@@ -51,12 +53,12 @@ mod test {
 
     #[test]
     fn empty_session() {
-        let app = "wyku-test-empty";
-        let path = new(app).unwrap();
+        let app = format!("{PREFIX}-single");
+        let path = new(&app).unwrap();
 
         assert!(path.is_dir());
         assert!(fs::read_dir(&path).unwrap().next().is_none());
-        assert_eq!(path.parent().unwrap(), app_dir(app));
+        assert_eq!(path.parent().unwrap(), app_dir(&app));
         path.file_name()
             .unwrap()
             .to_str()
@@ -67,17 +69,17 @@ mod test {
 
     #[test]
     fn two_sessions() {
-        let app = "wyku-test-two";
+        let app = format!("{PREFIX}-two");
 
-        let first = new(app).unwrap();
-        let second = new(app).unwrap();
+        let first = new(&app).unwrap();
+        let second = new(&app).unwrap();
 
         assert_ne!(first, second);
         assert!(first.is_dir());
         assert!(second.is_dir());
         assert!(fs::read_dir(&first).unwrap().next().is_none());
         assert!(fs::read_dir(&second).unwrap().next().is_none());
-        assert_eq!(first.parent().unwrap(), app_dir(app));
-        assert_eq!(second.parent().unwrap(), app_dir(app));
+        assert_eq!(first.parent().unwrap(), app_dir(&app));
+        assert_eq!(second.parent().unwrap(), app_dir(&app));
     }
 }
